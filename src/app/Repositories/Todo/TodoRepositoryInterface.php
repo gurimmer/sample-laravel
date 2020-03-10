@@ -44,9 +44,9 @@ interface TodoRepositoryInterface
      * Todoを完了にする
      *
      * @param integer $todo_id
-     * @return CompleteTodo|null
+     * @return CompleteTodo
      */
-    public function complete(int $todo_id): ?CompleteTodo;
+    public function complete(int $todo_id): CompleteTodo;
 
     /**
      * Todoを削除する

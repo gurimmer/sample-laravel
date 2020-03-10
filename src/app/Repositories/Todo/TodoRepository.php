@@ -62,11 +62,10 @@ class TodoRepository implements TodoRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function complete(int $todo_id): ?CompleteTodo
+    public function complete(int $todo_id): CompleteTodo
     {
-        try {
-            DB::beginTransaction();
-            $todo = Todo::findOrFail($todo_id);
+        $todo = Todo::findOrFail($todo_id);
+        return DB::transaction(function () use ($todo) {
             $todo->delete();
             $completeTodo = CompleteTodo::create([
                 'title' => $todo->title,
@@ -75,11 +74,7 @@ class TodoRepository implements TodoRepositoryInterface
             DB::commit();
             Log::info('complete task: title = ' . $completeTodo->title);
             return $completeTodo;
-        } catch (Exception $e) {
-            DB::rollback();
-            Log::error('todo complete exception: ' . $e->getMessage());
-        }
-        return null;
+        });
     }
 
     /**
