@@ -1,0 +1,64 @@
+version: "3.7"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./build/nginx/Dockerfile
+    ports:
+      - 80:80
+    depends_on:
+      - php
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - web-network
+    environment:
+      NGINX_PORT: "80"
+      NGINX_ROOT: "/var/www/html/public"
+      PHP_HOST: "php"
+      SERVER_NAME: "sample-laravel.com"
+    command: /bin/sh -c "envsubst '$$NGINX_PORT $$NGINX_ROOT $$PHP_HOST $$SERVER_NAME' < /etc/nginx/conf.d/vhost.template > /etc/nginx/conf.d/vhost.conf && nginx -g 'daemon off;'"
+  php:
+    build:
+      context: .
+      dockerfile: ./build/php/Dockerfile
+    networks:
+      - web-network
+    depends_on:
+      - db
+    volumes:
+      - ./src:/var/www/html
+      - ./build/php/config.json:/home/www-data/.composer/config.json
+    environment: # .env DB_HOST override
+      DB_HOST: db
+  npm:
+    build:
+      context: .
+      dockerfile: ./build/npm/Dockerfile
+    command: run dev
+    networks:
+      - web-network
+    volumes:
+      - ./src:/app
+      - npm-volume:/app/node_modules:delegated
+  db:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    networks:
+      - web-network
+    volumes:
+      - ./build/mysql:/docker-entrypoint-initdb.d
+      - ./build/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - mysql-volume:/var/lib/mysql:delegated
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: "sample_laravel"
+      MYSQL_USER: "developer"
+      MYSQL_PASSWORD: "RootPass_2"
+networks:
+  web-network:
+volumes:
+  mysql-volume:
+  npm-volume:
