@@ -11,16 +11,16 @@
         <title>Laravel</title>
     </head>
     <body>
-        <nav>
+        <nav class="nav-menu">
             <div class="nav-wrapper">
-            <a href="{{ route('todos.index') }}" class="brand-logo"><img src="{{ asset('img/todos.png') }}" alt="todos logo" width="30"></a>
+            <a href="{{ route('todos.index') }}" class="brand-logo">Todos</a>
                 <ul id="nav-mobile" class="right hide-on-med-and-down">
                     <li><a href="#">Login</a></li>
                     <li><a href="#">Register</a></li>
                 </ul>
             </div>
         </nav>
-        <div class="container">
+        <div class="container main-container">
             @yield('content')
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
